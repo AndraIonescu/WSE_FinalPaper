@@ -1,0 +1,14 @@
+aansluiting AND gemist
+Overstappen OR Omleiding
+vertraging AND trein
+NS AND vertraging
+NS AND Overstappen
+Arriva AND vertraging
+Connexxion AND vertraging
+Transdev
+Syntus 
+Qbuzz 
+GVB AND vertraging
+HTM AND vertraging 
+RET AND vertraging
+storingen
