@@ -14,10 +14,10 @@ def readFile(filename):
 
 def exportToCsv(filename, tweets):
 	outputFile = codecs.open(filename, "w+", "utf-8")
-	outputFile.write('username;date;retweets;favorites;text;geo;mentions;hashtags;id;query;permalink')
+	outputFile.write('username;date;retweets;favorites;text;geo;location;mentions;hashtags;id;query;permalink')
 
 	for tweet in tweets:
-		outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;"%s";%s;%s' % (tweet.username, tweet.date.strftime("%Y-%m-%d %H:%M"), tweet.retweets, tweet.favorites, tweet.text, tweet.geo, tweet.mentions, tweet.hashtags, tweet.id, tweet.query, tweet.permalink)))
+		outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;%s;"%s";%s;%s' % (tweet.username, tweet.date.strftime("%Y-%m-%d %H:%M"), tweet.retweets, tweet.favorites, tweet.text, tweet.geo, tweet.location, tweet.mentions, tweet.hashtags, tweet.id, tweet.query, tweet.permalink)))
 
 def initTweepy():
 	
@@ -51,12 +51,10 @@ def buildGeoDictionary(statuses):
 		user = status.user
 		
 		if user.location:
-			print("LOCATION:" + user.location)
-			location.update({status.id : user.location})
+			location.update({status.id_str : user.location})
 		if 'geo' in json:
 			if json['geo']:
-				print("GEO:" + json["geo"]["coordinates"])
-				geo.update({status.id : json['geo']['coordinates']})
+				geo.update({status.id_str : json['geo']['coordinates']})
 
 def getGeoBulk(tweets, tweepy):
 	bulk = []
@@ -88,7 +86,7 @@ if __name__ == '__main__':
 	#print(words)
 
 	tweetCriteria = got.manager.TweetCriteria()
-	tweetCriteria.setSince("2017-12-07").setUntil("2017-12-08")
+	tweetCriteria.setSince("2017-12-05").setUntil("2017-12-15")
 
 	tweets2 = []
 	for word in words:
