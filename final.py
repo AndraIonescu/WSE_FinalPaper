@@ -95,7 +95,7 @@ if __name__ == '__main__':
 	disr = {}
 	for d in disruptions:
 		d1 = d.split(' ')
-		disr[d1[0]] = d1[2]
+		disr[d1[0]] = d1[3]
 
 	for date in dates:
 		print("DATES: " + date)
@@ -112,7 +112,7 @@ if __name__ == '__main__':
 					aux = tweet
 					# aux.geo = getGeo(tweepy, tweet.id)
 					aux.query = word
-					aux.text = tweet.text.replace(';', '')
+					aux.text = tweet.text.replace(';', '').replace('\\', '')
 					aux.tokens = [ x.encode('utf-8') for x in word_tokenize(aux.text)]
 					aux.grade = disr[str(tweet.date.date())]
 					tweets2.append(aux)
