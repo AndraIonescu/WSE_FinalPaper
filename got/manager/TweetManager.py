@@ -34,7 +34,7 @@ class TweetManager:
 			for tweetHTML in tweets:
 				tweetPQ = PyQuery(tweetHTML)
 				tweet = models.Tweet()
-				
+				tweetPQ.remove('.twitter-timeline-link')
 				usernameTweet = tweetPQ("span:first.username.u-dir b").text();
 				txt = re.sub(r"\s+", " ", tweetPQ("p.js-tweet-text").text().replace('# ', '#').replace('@ ', '@'));
 				retweets = int(tweetPQ("span.ProfileTweet-action--retweet span.ProfileTweet-actionCount").attr("data-tweet-stat-count").replace(",", ""));

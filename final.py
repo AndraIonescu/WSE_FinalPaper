@@ -1,6 +1,8 @@
 import got
 import codecs
 from tweepy import *
+from nltk.tokenize import word_tokenize
+
 
 geo = {}
 location = {}
@@ -14,10 +16,10 @@ def readFile(filename):
 
 def exportToCsv(filename, tweets):
 	outputFile = codecs.open(filename, "w+", "utf-8")
-	outputFile.write('username;date;retweets;favorites;text;geo;location;mentions;hashtags;id;query;permalink')
+	outputFile.write('username;date;retweets;favorites;text;tokens;geo;location;mentions;hashtags;id;query;permalink')
 
 	for tweet in tweets:
-		outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;%s;"%s";%s;%s' % (tweet.username, tweet.date.strftime("%Y-%m-%d %H:%M"), tweet.retweets, tweet.favorites, tweet.text, tweet.geo, tweet.location, tweet.mentions, tweet.hashtags, tweet.id, tweet.query, tweet.permalink)))
+		outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;%s;%s;"%s";%s;%s' % (tweet.username, tweet.date.strftime("%Y-%m-%d %H:%M"), tweet.retweets, tweet.favorites, tweet.text, tweet.tokens, tweet.geo, tweet.location, tweet.mentions, tweet.hashtags, tweet.id, tweet.query, tweet.permalink)))
 
 def initTweepy():
 	
@@ -99,11 +101,15 @@ if __name__ == '__main__':
 				aux = tweet
 				# aux.geo = getGeo(tweepy, tweet.id)
 				aux.query = word
+				aux.tokens = [ x.encode('utf-8') for x in word_tokenize(tweet.text)]
 				tweets2.append(aux)
 
 		print(str(len(tweets2)))
 
-	finalTweets = getGeoBulk(tweets2, tweepy)
+	filtered_tweets = dict((x.id, x) for x in tweets2).values()
+	print("BEFORE: " + str(len(tweets2)) + "\nAfter: " + str(len(filtered_tweets)))
+
+	finalTweets = getGeoBulk(filtered_tweets, tweepy)
 
 	exportToCsv("tweets.csv", finalTweets)
 
