@@ -2,6 +2,7 @@ import got
 import codecs
 from tweepy import *
 from nltk.tokenize import word_tokenize
+from datetime import datetime
 
 
 geo = {}
@@ -16,10 +17,10 @@ def readFile(filename):
 
 def exportToCsv(filename, tweets):
 	outputFile = codecs.open(filename, "w+", "utf-8")
-	outputFile.write('username;date;retweets;favorites;text;tokens;geo;location;mentions;hashtags;id;query;permalink')
+	outputFile.write('username;date;retweets;favorites;text;tokens;geo;location;mentions;hashtags;id;query;permalink;grade')
 
 	for tweet in tweets:
-		outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;%s;%s;"%s";%s;%s' % (tweet.username, tweet.date.strftime("%Y-%m-%d %H:%M"), tweet.retweets, tweet.favorites, tweet.text, tweet.tokens, tweet.geo, tweet.location, tweet.mentions, tweet.hashtags, tweet.id, tweet.query, tweet.permalink)))
+		outputFile.write(('\n%s;%s;%d;%d;"%s";%s;%s;%s;%s;%s;"%s";%s;%s;%s' % (tweet.username, tweet.date.strftime("%Y-%m-%d %H:%M"), tweet.retweets, tweet.favorites, tweet.text, tweet.tokens, tweet.geo, tweet.location, tweet.mentions, tweet.hashtags, tweet.id, tweet.query, tweet.permalink, tweet.grade)))
 
 def initTweepy():
 	
@@ -84,27 +85,39 @@ def getGeoBulk(tweets, tweepy):
 
 if __name__ == '__main__':
 	tweepy = initTweepy()
-	words = readFile("words.txt")
-	#print(words)
-
 	tweetCriteria = got.manager.TweetCriteria()
-	tweetCriteria.setSince("2017-12-05").setUntil("2017-12-15")
+	
+	words = readFile("words.txt")
+	dates = readFile("date.txt")
+	disruptions = readFile("disruption_grade.csv")
 
 	tweets2 = []
-	for word in words:
-		print("WORD: " + word)
-		tweetCriteria.setQuerySearch(word)
-		tweets = got.manager.TweetManager.getTweets(tweetCriteria)
+	disr = {}
+	for d in disruptions:
+		d1 = d.split(' ')
+		disr[d1[0]] = d1[2]
 
-		for tweet in tweets:
-			if tweet.id.isdigit():
-				aux = tweet
-				# aux.geo = getGeo(tweepy, tweet.id)
-				aux.query = word
-				aux.tokens = [ x.encode('utf-8') for x in word_tokenize(tweet.text)]
-				tweets2.append(aux)
+	for date in dates:
+		print("DATES: " + date)
+		dt = date.split(' ')
+		tweetCriteria.setSince(dt[0]).setUntil(dt[1])
 
-		print(str(len(tweets2)))
+		for word in words:
+			print("WORD: " + word)
+			tweetCriteria.setQuerySearch(word)
+			tweets = got.manager.TweetManager.getTweets(tweetCriteria)
+
+			for tweet in tweets:
+				if tweet.id.isdigit():
+					aux = tweet
+					# aux.geo = getGeo(tweepy, tweet.id)
+					aux.query = word
+					aux.text = tweet.text.replace(';', '')
+					aux.tokens = [ x.encode('utf-8') for x in word_tokenize(aux.text)]
+					aux.grade = disr[str(tweet.date.date())]
+					tweets2.append(aux)
+
+			print(str(len(tweets2)))
 
 	filtered_tweets = dict((x.id, x) for x in tweets2).values()
 	print("BEFORE: " + str(len(tweets2)) + "\nAfter: " + str(len(filtered_tweets)))
